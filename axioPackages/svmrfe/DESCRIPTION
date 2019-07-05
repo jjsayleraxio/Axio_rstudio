@@ -1,0 +1,13 @@
+Package: svmrfe
+Version: 0.1.0
+Date: 09-10-2011
+Title: Feature selection functions written by Jim Schimert and David Henderson
+Depends: e1071, ggplot2, grid, randomForest, ipred
+Imports: 
+Suggests: 
+Author: Jim Schimert, David Henderson
+Maintainer: David Henderson <DNADavenator@GMail.Com>
+Description: Functions to perform recursive feature elimination using support
+             vector machines
+License: Artistic
+Packaged: 2011-10-14 09:23:39 UTC; david

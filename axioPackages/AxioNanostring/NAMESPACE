@@ -1,0 +1,20 @@
+# Refer to all C/Fortran routines by their name prefixed by R_
+#useDynLib( GeneticsPC , .registration = TRUE , .fixes = "R_" )
+
+## Depends:
+## - pwr: ???
+
+export(
+        getAnnotationData ,
+        getCountData ,
+        getNanoData ,
+        loadNanoString
+       )
+       
+#exportClasses( "powerObject" )
+#exportMethods(
+#       show ,
+#       plot
+#)
+#
+#importFrom( graphics , plot )

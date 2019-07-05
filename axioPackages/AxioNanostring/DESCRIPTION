@@ -1,0 +1,10 @@
+Package: cglNanoString
+Title: NanoString infrastructure
+Description: Base classes and methods for Nanostring data
+Author: David Henderson
+Maintainer: David Henderson <David.Henderson@Covance.Com>
+URL: 
+License: LGPL version 2.1 or later
+biocViews: Genetics
+Version: 0.0.1
+Depends: R (>= 2.14.0), ggplot2 (>= 0.9.0), plyr, grid, NanoStringNorm, XML, Biobase

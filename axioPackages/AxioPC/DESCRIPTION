@@ -1,0 +1,10 @@
+Package: AxioPC
+Title: Power Calculations
+Description: Calculate power for case control and pharmacogenomics experiments
+Author: Cliona Moloney, Judy Zhong, and David Henderson
+Maintainer: David Henderson <DavidH@AxioResearch.Com>
+URL: 
+License: LGPL version 2.1 or later
+biocViews: Genetics
+Version: 0.0.3
+Depends: R (>= 2.4.0), pwr, MASS, ggplot2 (>= 0.9.0), plyr, grid, haplo.stats

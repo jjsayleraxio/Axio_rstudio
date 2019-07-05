@@ -1,0 +1,22 @@
+# Refer to all C/Fortran routines by their name prefixed by R_
+#useDynLib(GeneticsPC, .registration=TRUE, .fixes="R_")
+
+## Depends:
+## - pwr: ???
+
+export(
+       plotGWASPValues,
+       plotGWASPValues.default,
+       plotGWASPValues.hexbin,
+       plotGWASValues,
+       plotEQTL,
+       gwasQQPlot
+       )
+       
+#exportClasses("powerObject")
+#exportMethods(
+#       show,
+#       plot
+#)
+
+#importFrom(graphics, plot)

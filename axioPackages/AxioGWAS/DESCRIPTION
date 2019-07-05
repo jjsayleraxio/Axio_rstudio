@@ -1,0 +1,30 @@
+Package: AxioGWAS
+Title: Genome Wide Association Study code
+Description: Perform GWAS analysis for case control and pharmacogenomics
+    experiments
+Author: David Henderson
+Maintainer: David Henderson <David.Henderson@Covance.Com>
+URL: 
+License: LGPL version 2.1 or later
+biocViews: Genetics
+Version: 0.0.1
+Depends:
+    R (>= 2.14.0),
+    ggplot2 (>= 0.9.0),
+    plyr,
+    grid,
+    haplo.stats,
+    snpStats,
+    car,
+    mlogit,
+    nnet,
+    HH,
+    snowfall,
+    car,
+    biomaRt,
+    AxioSerializer,
+    DBI,
+    RSQLite,
+    survival,
+  	bit
+RoxygenNote: 6.0.1

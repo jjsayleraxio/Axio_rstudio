@@ -1,0 +1,51 @@
+# Refer to all C/Fortran routines by their name prefixed by R_
+#useDynLib( GeneticsPC , .registration = TRUE , .fixes = "R_" )
+
+## Depends:
+## - pwr: ???
+
+export(
+       computePowerCohort ,
+       getPowerElstonPGxNormal ,
+       getSampleElstonPGxNormal ,
+       getPowerElstonPGxNormalVec ,
+       getSampleElstonPGxNormalVec ,
+       computePowerElstonPGx ,
+       getPowerElstonPGxCC ,
+       getSampleElstonPGxCC ,
+       getPowerElstonPGxCCVec ,
+       getSampleElstonPGxCCVec ,
+       computePowerElstonCC ,
+       getPowerKellyPGxNormal ,
+       getSampleKellyPGxNormal ,
+       getPowerKellyPGxNormalVec ,
+       getSampleKellyPGxNormalVec ,
+       computePowerKellyPGx ,
+#       getPowerKellyPGxCC ,
+#       getSampleKellyPGxCC ,
+#       getPowerKellyPGxCCVec ,
+#       getSampleKellyPGxCCVec ,
+#       computePowerKellyCC ,
+       computeES ,
+       computePowerCC ,
+       getR0 ,
+       bisecB0 ,
+       getR1 ,
+       bisecB1 ,
+       getB0B1 ,
+       getPowerCC ,
+       getPower ,
+       getSample ,
+       powerObject ,
+       print.powerObject ,
+       plot.powerObject ,
+       makeContrastMatrix
+       )
+       
+exportClasses( "powerObject" )
+exportMethods(
+       show ,
+       plot
+)
+
+importFrom( graphics , plot )

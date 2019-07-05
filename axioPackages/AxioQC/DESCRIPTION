@@ -1,0 +1,9 @@
+Package: cglQC
+Title: CGL DNA and RNA QC Reporting and Analysis Tools
+Version: 1.0
+Date: 2011-10-14
+Depends: R (>= 2.10.0), stats, ggplot2, scales, XLConnect
+Author: David Henderson
+Description: Create graphs and tables for Covance qc and DNA/RNA standard validation.
+Maintainer: David Henderson <David.Henderson@Covance.Com>
+License: Artistic

@@ -1,0 +1,20 @@
+export( runControlReport , readControls , boxPlotWithSmoothLine , createBootDensities , runBootDensities , plotDensities , plotLimitWidths , plotLimitCenters , smoothedBootstrap , smoothPlot , boxPlot , orderDate )
+
+#S3method(print, randomForest)
+#S3method(predict, randomForest)
+#S3method(plot, randomForest)
+#S3method(plot, margin)
+#S3method(margin, randomForest)
+#S3method(partialPlot, randomForest)
+#S3method(grow, randomForest)
+#S3method(importance, randomForest)
+#S3method(outlier, randomForest)
+#S3method(outlier, default)
+
+#S3method(randomForest, formula)
+#S3method(randomForest, default)
+#S3method(rfImpute, formula)
+#S3method(rfImpute, default)
+
+#S3method(na.roughfix, data.frame)
+#S3method(na.roughfix, default)

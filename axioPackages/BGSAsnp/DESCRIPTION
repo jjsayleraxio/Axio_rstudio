@@ -1,0 +1,10 @@
+Package: BGSAsnp
+Type: Package
+Title: Bayesian Gene Set Analysis for GWAS
+Version: 1.0
+Date: 2012-05-03
+Author: Babak Shahbaba
+Maintainer: Babak Shahbaba <babaks@uci.edu>
+Description: Identifies significant biological pathways using genome wide association data
+License: GPL (>= 2.0) | BSD
+RoxygenNote: 6.0.1

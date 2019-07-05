@@ -1,0 +1,206 @@
+---
+title: "axioGWAS-Class"
+author: "Axio Research"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r SETCHUNKS, echo=FALSE}
+library(knitr)
+opts_chunk$set(cache=TRUE, autodep=TRUE,results='hide', message='hide')
+```
+## AxioGWAS
+
+AxioGWAS is a package developed by Axio Research to aid in the process of doing a Genome Wide Association Study(GWAS). This package contains many functions for filtering genotypes, creating of models, performing regressions for a GWAS, and presenting the results of a GWAS. It also comes with the added benefit of saving each regression into a database for later recall. 
+
+To allow for ease of use, a reference class called 'axioGWAS' was created to simplify the process of performing a GWAS. Since it is a reference class, it behaves similarly to a java object and methods can be run internally.
+
+###Initialization
+
+To begin, first call the **AxioGWAS** library into your R environment, and initialize an object as the *axioGWAS* class.
+
+```{r AxioGWASLibrary, echo=TRUE, cache=TRUE, message=FALSE}
+library( AxioGWAS )
+gwasObject <- new('axioGWAS')
+```
+
+The axioGWAS class has `r length(names(gwasObject$.refClassDef@fieldClasses))` fields to enter your parameters into. They include mandatory parameters such as *genotypes*, *phenotypes*, *snpFeatures*, *chromosomeVar*, *func*, *database_path*, *database_table*, *interactionTerm*, and *genderVar*. An example of how to use the *axioGWAS* class will follow, but first, below is a table of the fields, the class of entry that goes to the field, and the default value upon initialization.
+
+```{r printStr, echo=FALSE, results='markup', warning=FALSE}
+fields<-gwasObject$.refClassDef@fieldClasses
+fields<-data.frame(Field=names(fields),Type=do.call('rbind',fields), row.names = names(fields))
+fields$default<-NA
+for(fieldName in fields$Field){
+  fieldValue<-gwasObject[[fieldName]]
+    if(length(fieldValue)==0){
+      fieldValue<-capture.output(fieldValue)
+      if(length(fieldValue)==1){
+        fields[fieldName,'default']<-fieldValue
+      }
+    }else if(class(fieldValue)=='function'){
+      fields[fieldName,'default']<-"AxioGWAS::gwasFunc"
+    }else if(class(fieldValue)=='character'){
+     fields[fieldName,'default']<-paste0('"',fieldValue,'"')
+    }else if(class(fieldValue)%in%c('numeric','logical')){
+     fields[fieldName,'default']<-fieldValue
+    }else{
+      fields[fieldName,'default']<-deparse(fieldValue)
+    }
+}
+
+names(fields)<-c('Field of axioGWAS Object','Class of Field Entry','Default Value of Field')
+knitr::kable(fields, align='l', row.names=FALSE, caption="Table 1. The Fields of the axioGWAS Class")
+```
+
+###Example
+
+To perform an example of how to use the axioGWAS class, we first need to have data to perform a GWAS on. The data we chose is from the the Gene Expression Omnibus and made public May 1, 2015, under the GEO extension: GSE46231. To avoid issues with marketing use of human genetic data, we utilized this data set which includes samples from a genome wide association study for sheep growth and meat production traits. 
+
+There were 329 sheep in GSE46231 representing three distinct breeds: Dorper, German Mutton, and Sunit. Included with the genetic data in the public data set was phenotype data consisting of sex, birth weight, weaning weight, 6-month weight, fat thickness, eye muscle area, height at withers, chest girth, shin circumference, pre-weaning daily weight gain, post-weaning daily weight gain, and overall daily weight gain.
+
+The purpose of the study was to identify genetic regions containing polymorphisms associated with growth traits. Features, such as chromosome and position, for each SNP was included with the download as well.
+
+```{r GEOLibrary, echo=FALSE, cache=TRUE}
+suppressMessages(library( GEOquery ))
+suppressWarnings(suppressMessages(eset<-getGEO("GSE46231")[[1]]))
+```
+
+```{r esetCall, echo =TRUE, eval=FALSE}
+library(GEOquery)
+eset<-getGEO("GSE46231")[[1]]
+```
+
+```{r GEO_Read, echo = TRUE}
+Phenotypes<-pData(eset)
+Genotypes<-exprs(eset)
+SnpFeatures<-fData(eset)
+```
+
+####Data Preparation
+After downloading, the data must be processed into the correct format for analysis. The genotype data from the GEO expression set is in the form "AA", "AB", "BB" format, but the axioGWAS class requires the data to be in the "A/A","A/B","B/B" format. Also, variants that were not able to be called were set as "NC" in the expression set and need to be changed to be `r NA` so the model knows to ignore it. 
+
+The phenotypes data has a lot of extra columns with information like original researcher contact information. We will remove the extra columns and extract the phenotype values from the columns left over. The SnpFeatures data has columns in the incorrect data type, so the columns containing chromosome and coordinate information will be converted to type character and numeric respectively.
+
+```{r convertGenotypes, echo=TRUE}
+Genotypes<-gsub("AA","A/A",Genotypes)
+Genotypes<-gsub("AB","A/B",Genotypes)
+Genotypes<-gsub("BB","B/B",Genotypes)
+Genotypes<-gsub("NC",NA,Genotypes)
+```
+
+```{r convertPhenotypes, echo=TRUE}
+Phenotypes[, 8] <- as.character(Phenotypes[, 8])
+for (C in c(10, 12:22)) {
+  if (C == 10) {
+    Phenotypes[, C] = as.character(do.call('rbind', strsplit(as.character(Phenotypes[, C]), ": "))[, 2])
+  }
+  else{
+    Phenotypes[, C] = as.numeric(do.call('rbind', strsplit(as.character(Phenotypes[, C]), ": "))[, 2])
+  }
+}
+Phenotypes<-Phenotypes[,c(8,10,12:22)]
+names(Phenotypes)=c("Breed","Sex","Birth","Weaning","SixMonths","Fat","EyeMuscle","Height","Chest","Shin","PreGains","PostGains","DailyGains")
+```
+
+```{r convertSNPFeatures, echo = TRUE}
+SnpFeatures$Chr<-as.character(SnpFeatures$Chromosome)
+SnpFeatures$Coordinate<-as.numeric(SnpFeatures$Coordinate)
+```
+
+We can now start to build up *gwasObject* with the data required to perform the GWAS. First, we put our data in for the *genotypes*, *phenotypes*, and *snpFeatures*. 
+
+We also will fill in all the other mandatory field entries. This includes telling the object the column name that the chromosome data is stored in the *snpFeatures* field, setting the *database_path* as path to the database to store the data, *database_table* as the table in the database that holds the objects, and making *overwritepreviousEntry* as TRUE or FALSE as to whether to overwrite database entries if the GWAS is rerun. The *interactionTerm* field is the name of the column in the phenotype data that will be the interaction term with the SNP data, and *genderVar* as the name of the column in the phenotype data that contains the sex of the sample.
+
+```{r addGenoPhenoFeat, echo = TRUE}
+gwasObject$genotypes<-as.matrix(Genotypes)
+gwasObject$phenotypes<-Phenotypes
+gwasObject$snpFeatures<-SnpFeatures
+gwasObject$chromosomeVar<-'Chr'
+gwasObject$database_path<-'axioGWASExample.DB'
+gwasObject$database_table<-'example_Table'
+gwasObject$overwritepreviousEntry<-TRUE
+gwasObject$interactionTerm<-'Breed'
+gwasObject$genderVar<-'Sex'
+```
+
+Next, we decide if we want to perform our GWAS and Filtering in parallel or in series. By default, *snowFall* is set as FALSE. If we specify *snowFall* as TRUE, the actions that can be performed in parallel will. This also means that *ncores* needs a real integer value greater than 0 to specify the number of cores to initialize. In this case we will parallelize using two cores.
+
+```{r snowFallField, echo = TRUE}
+gwasObject$snowFall<-TRUE
+gwasObject$ncores<-2
+```
+
+####Model Generation
+Now that there is data in gwasObject, we can build the model that will be used in the GWAS. There are two ways to do this. If you already know the model you want to run, you can simply set the model field of the object as the base model you want to use. Note, do not include a variable for the SNP or the interaction effect.
+
+The best way to set the model is by calling the **generateModel** method on the gwasObject. This calls an internal function that will generate a model based on the phenotype data in the phenotype field. The function requires at least a value for *depvar*, which is the dependent variable of your GWAS. This is the phentype of interest for your GWAS, and must be a column inside the *phenotypes* field. There is an optional entry called *indepVar*, this is the independent variables to attempt to include in your model. If you do not enter a value, the function will attempt to include all variables in the phenotype field. In this case, the only independent variables we wish to include are Breed and Sex.
+
+
+```{r generatingModel, echo = TRUE}
+gwasObject$generateModel(depVar = 'PostGains', indepVar = c("Breed","Sex"))
+```
+
+The resulting model is saved to the *model* field in the gwasObject.
+
+```{r printModel, echo = TRUE, results = "markup"}
+gwasObject$model
+```
+
+####Filtering Genotypes
+We will now begin the process of filtering the genotype calls for various measures. To ensure the quality of the GWAS, and remove SNPs that are unlikely to be significant, we run each snp though three filters; call rate, minor allele frequency, and Hardy-Weinberg Equlibibrium. Filtering has the added benefit of decreasing the number of regressions to run and speeds up the overall GWAS.
+
+The first filter is the call rate filter. This filter checks to see if the SNP is called in a certain percentage of the subjects. The default for minimum Call Rate is 95%. 
+
+If the snp passes the call rate filter, its is ran though the minor allele frequency(MAF) filter. The MAF is the minor allele call rate divided by the total number of alleles called. The minimum MAF allowed by default is 5%. 
+
+When both of the previous filtering criteria are met, the SNP is checked for Hardy-Weinberg Equilibrium, and a p-value indicating the probability of meeting the equilibrium is return. After every SNP passing the previous filters has a p-value, they undergo a p-value adjustment, and all snps meeting or greater than the cutoff p-value pass. The p-value adjustment method is either the method set by the *adjust* field in the axioGWAS object or the value of the adjust argument in the runFilter method. The Hardy-Weinberg Equilibrium p-value cutoff defaults to 0.05, and the default adjustment method is "BY", standing for Benjamini and Yekutieli (2001).
+
+Filtering is performed by calling the **runFilter** method, and will automatically update the genotypes field entry to remove the SNPs that failed to pass. Because we set the *snowFall* field as TRUE, the filtering will be performed in parallel, reducing the amount of time it takes to filter.
+
+```{r filteringGenotypes, echo = TRUE, messages=FALSE, warning=FALSE, }
+gwasObject$runFilter()
+```
+
+###Performing the GWAS
+The axioGWAS class makes it simple to perform a GWAS and obtain the significant snps. The *func* field of the axioGWAS object is the function to apply the model previously generated. The default function is the gwasFunc included in the AxioGWAS package. It performs a simple linear regression and runs a type III anova on the results, extracting the p-value for the interaction between the SNP and the specified interaction term. The linear model is saved in the table based on the value of the *database_table* field in database indicated in the *database_path* field for future examination. 
+
+The method **runGWAS** was built so a custom function can replace the *func* field. Examples of different functions to be used here are inluded in the gwas.R script in the package. Below the basic **gwasFunc** contents are printed out to show the general format of the functions, and the required output.
+
+```{r showgwasFunc, results='markup'}
+gwasObject$func
+```
+
+Any additional arguments required for the function in the *func* field are entered as a list into the *functionArgs* field, with the argument name as the name in a list, and the object/value as the contents. For example, the default **gwasFunc** requires an argument called snpInfo, so the *functionArgs* field will be set as *list(snpInfo=SnpFeatures)*.
+
+```{r runGWAS, echo = TRUE, eval=TRUE, messages=FALSE, warning=FALSE, results='hide'}
+gwasObject$functionArgs<-list(snpInfo=SnpFeatures)
+gwasObject$runGWAS()
+```
+
+### Results of the GWAS
+The method **runGWAS** automatically updates the *pvalues* and *significantSNPs* fields. The *pvalues* field is a data.frame containing three columns; SNPName, Pvalue and AdjustedPvalue. The *significantSNPs* field is a character vector of the names of the significant snps, identified by having an adjusted p-value less than the cutoff. The cutoff is set by the *significantCutOff* field and defaults to 0.05.
+
+It is possible to update the *significantSNPs* field by either changing the value of the *significantCutoff* field and running the **findSignificantSNPS** method, or setting the cutoff argument in the **findSignificantSNPS** method to a new value.
+
+####Manhattan Plots
+There is a method included in the axioGWAS class to present the results of the GWAS in a manhattan plot. This is done by calling the **manhattanPlot** method. By default the method will use the *snpFeatures* field to generate the placement information, as well as plot all the chromosomes and highlight any significant SNPs.
+
+```{r runManhattanALL, echo = TRUE, fig.cap="Manhattan Plot of Significant SNPs, Entire Genome", warning=FALSE, cache.rebuild=TRUE}
+gwasObject$positionVar<-'Coordinate'
+gwasObject$manhattanPlot()
+```
+
+To reduce the number of Chromosomes displayed, enter a character vector of the Chromosomes you wish to display for the "chromosome" argument. For example, to have only chromosomes 12 and X be plotted, set chromosome=c("12","X").
+
+```{r runManhattan12X, echo = TRUE, fig.cap="Manhattan Plot of Significant SNPs, Chromosomes 12 and X", cache.rebuild=TRUE}
+gwasObject$manhattanPlot(chromosome=c("1","X"))
+```
+
+####Recovering Models
+After performing a GWAS, there may be a few SNPs that were not found be be significant and you are curious why. There is a method called **extractSNPResult** that will extract the regression information for that snp from the database. The only input into this function is the name of the SNP. For example, the snp 's19234.1' is a snp of interest for your lab. You can extract the snp and see the resuling model by running the method.
+
+```{r extractSNP,echo = TRUE, results='markup'}
+s19234_1_Model<-gwasObject$extractSNPResult(snpName = 's19234.1')
+summary(s19234_1_Model)
+```
+
