@@ -4,16 +4,18 @@ LABEL maintainer="josephs@axioresearch.com" \
       description="RStudio docker image used at Axio Research" \
       version="1.0"
 
-RUN apt-get update -y && apt-get -y install git subversion && mkdir /app/
+RUN apt-get update -y && apt-get -y install git subversion python python3 python-pip python3-pip
 
-COPY installers/ /tmp/
+WORKDIR /
 
-COPY axioPackages/ /app/
+RUN git clone https://github.com/jjsayleraxio/Axio_rstudio.git
 
-COPY users/userconf.sh /tmp/
+WORKDIR /Axio_rstudio
 
-RUN sh /tmp/userconf.sh && chgrp -R users /usr/local/lib/R/site-library && chmod -R g+w /usr/local/lib/R/site-library #&& R -f /tmp/BioC_installr.R --args Sequencing && R -f /tmp/installAxioPackages.R
+RUN sh users/userconf.sh && R -f installers/BioC_installr.R --args Sequencing && R -f installers/installAxioPackages.R
 
 ENV PASSWORD=axio
 ENV HTTR_LOCALHOST=/etc/R/Renviron.site
 ENV HTTR_PORT=/etc/R/Renviron.site
+
+RUN chgrp -R users /usr/local/lib/R/site-library && chmod -R g+w /usr/local/lib/R/site-library 
