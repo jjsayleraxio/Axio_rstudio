@@ -6,5 +6,5 @@ install.packages("flock", repos="http://R-Forge.R-project.org", type="source")
 
 for(axioPackage in axioPackages){
   print(paste("installing",axioPackage))
-  install.packages( file.path("/app/axioPackages",axioPackage) , repos = NULL , type = "source" )
+  install.packages( file.path("axioPackages",axioPackage) , repos = NULL , type = "source" )
 }
