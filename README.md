@@ -9,4 +9,4 @@ To run:
 docker run -dit --name [container name] -p [HOST PORT]:8787 -v [HOST DIR]:[CONTAINER DIR] jjsaxio/axio_rstudio:latest
 ```
 
-The volumne (-v) is optional.
+The volume (-v) is optional.
