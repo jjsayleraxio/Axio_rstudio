@@ -12,7 +12,7 @@ RUN git clone https://github.com/jjsayleraxio/Axio_rstudio.git
 
 WORKDIR /Axio_rstudio
 
-RUN sh users/userconf.sh && R -f installers/BiocMan_installer.R --args Sequencing && R -f installers/installAxioPackages.R
+RUN sh users/userconf.sh && R -f installers/installAxioPackages.R # && R -f installers/BiocMan_installer.R --args Sequencing
 
 ENV PASSWORD=axio
 ENV HTTR_LOCALHOST=/etc/R/Renviron.site
