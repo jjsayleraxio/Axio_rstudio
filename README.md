@@ -1,7 +1,7 @@
 # Axio_rstudio
 Custom rstudio container used at Axio Research
 
-This is a custom rstudio container used by Axio Research. It contains Bioconductor packages as well as custom built Axio Research R packages.
+This is a custom rstudio container used by Axio Research. It contains ~Bioconductor packages as well as~ custom built Axio Research R packages.
 
 To run:
 
