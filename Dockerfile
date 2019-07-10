@@ -1,4 +1,4 @@
-FROM bioconductor/release_base2:R3.6.0_Bioc3.9
+FROM bioconductor/release_base2:R3.5.0_Bioc3.7
 
 LABEL maintainer="josephs@axioresearch.com" \
       description="RStudio docker image used at Axio Research" \
