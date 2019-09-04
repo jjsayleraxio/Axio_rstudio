@@ -1,4 +1,11 @@
+<img align="right" src="https://raw.githubusercontent.com/jjsayleraxio/AxioShiny/master/images/axio-logo.png">
+<br>
+
 # Axio_rstudio
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/jjsayleraxio/Axio_rstudio?logo=github&style=flat)
+[![GitHub issues](https://img.shields.io/github/issues/jjsayleraxio/Axio_rstudio?logo=github&style=flat)](https://github.com/jjsayleraxio/Axio_rstudio/issues)
+![Docker Build Status](https://img.shields.io/docker/build/jjsaxio/axio_rstudio?logo=docker&style=flat)
+
 Custom rstudio container used at Axio Research
 
 __Bioconductor release_base2 image with R3.6.0 and BioC 3.9__
