@@ -2,7 +2,7 @@ FROM bioconductor/release_base2:R3.6.0_Bioc3.9
 
 LABEL maintainer="josephs@axioresearch.com" \
       description="RStudio docker image used at Axio Research" \
-      version="1.0"
+      version="2.0"
 
 RUN apt-get update -y && apt-get -y install git subversion python python3 python-pip python3-pip
 
